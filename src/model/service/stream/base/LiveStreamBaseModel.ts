@@ -57,6 +57,8 @@ export default abstract class LiveStreamBaseModel
         }
 
         let cmd = this.processOption.cmd.replace(/%FFMPEG%/g, this.config.ffmpeg);
+        cmd = cmd.replace(/%RKMPPENC%/g, this.config.rkmppenc);
+        
         if (this.getStreamType() === 'LiveHLS') {
             cmd = cmd
                 .replace(/%streamFileDir%/g, this.config.streamFilePath)

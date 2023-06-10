@@ -218,6 +218,7 @@ export default abstract class RecordedStreamBaseModel
 
         let cmd = this.processOption.cmd
             .replace(/%FFMPEG%/g, this.config.ffmpeg)
+            .replace(/%RKMPPENC%/g, this.config.rkmppenc)
             .replace(/%SS%/g, this.videoFileType === 'ts' ? '' : this.processOption.playPosition.toString(10));
 
         if (this.getStreamType() === 'RecordedHLS') {

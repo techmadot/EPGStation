@@ -206,10 +206,14 @@ class EncodeProcessManageModel implements IEncodeProcessManageModel {
             }
         }
 
+        if (typeof option.spawnOption !== 'undefined') {
+            option.spawnOption.shell = true;
+        }
+
         // プロセス生成
         const child =
             typeof option.spawnOption === 'undefined'
-                ? spawn(cmds.bin, cmds.args)
+                ? spawn(cmds.bin, cmds.args, { shell: true })
                 : spawn(cmds.bin, cmds.args, option.spawnOption);
         const processId = new Date().getTime();
 

@@ -131,6 +131,7 @@ export default interface IConfigFile {
 
     ffmpeg: string;
     ffprobe: string;
+    rkmppenc: string;
 
     // エンコード設定
     encodeProcessNum: number; // エンコード、ストリーミング最大プロセス数

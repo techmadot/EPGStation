@@ -247,6 +247,7 @@ namespace Configuration {
         isEnabledDropCheck: false,
         ffmpeg: '/usr/local/bin/ffmpeg',
         ffprobe: '/usr/local/bin/ffprobe',
+        rkmppenc: '/usr/local/bin/rkmppenc',
         encodeProcessNum: 0,
         concurrentEncodeNum: 0,
         encode: [],
