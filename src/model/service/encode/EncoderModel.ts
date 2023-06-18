@@ -187,6 +187,7 @@ class EncoderModel implements IEncoderModel {
                     SUBDIR: this.encodeOption.directory || '',
                     FFMPEG: config.ffmpeg,
                     FFPROBE: config.ffprobe,
+                    RKMPPENC: config.rkmppenc,
                     NAME: recorded.name,
                     HALF_WIDTH_NAME: recorded.halfWidthName,
                     DESCRIPTION: recorded.description || '',
