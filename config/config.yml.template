@@ -82,6 +82,13 @@ stream:
                       copy -ignore_unknown -fflags nobuffer -flags low_delay -max_delay 250000 -max_interleave_delta 1
                       -threads 0 -c:a aac -ar 48000 -b:a 128k -ac 2 -c:v libx264 -flags +cgop -vf yadif,scale=-2:480
                       -b:v 1500k -preset veryfast -y -f mpegts pipe:1'
+                - name: rkmpp
+                  cmd:
+                      '%RKMPPENC% --avhw --interlace tff --vpp-yadif mode=auto --output-res 1280x720
+                      -c h264 --preset worse --vbr 3000
+                      --audio-codec aac --audio-bitrate 128 --audio-stream :stereo --audio-samplerate 48000 -i - -f mpegts -o - |
+                      %FFMPEG% -i pipe:0  -ignore_unknown -fflags nobuffer -flags low_delay -max_delay 250000 -max_interleave_delta 1
+                      -c:v copy -c:a copy -flags +cgop -y -f mpegts pipe:1'
 
             webm:
                 - name: 720p
@@ -108,6 +115,13 @@ stream:
                       -c:v libx264 -vf yadif,scale=-2:480 -b:v 1500k -profile:v baseline -preset veryfast -tune
                       fastdecode,zerolatency -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4
                       pipe:1'
+                - name: rkmpp
+                  cmd:
+                      '%RKMPPENC% --avhw --interlace tff --vpp-yadif mode=auto --output-res 1280x720 
+                      -c h264 --preset worse --vbr 3000
+                      --audio-codec aac --audio-bitrate 128 --audio-stream :stereo --audio-samplerate 48000 -i - -f mpegts -o - |
+                      %FFMPEG% -i pipe:0 -c:v copy -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4
+                      pipe:1'
 
             hls:
                 - name: 720p
@@ -124,6 +138,15 @@ stream:
                       -hls_segment_filename %streamFileDir%/stream%streamNum%-%09d.ts -hls_flags delete_segments -c:a
                       aac -ar 48000 -b:a 128k -ac 2 -c:v libx264 -vf yadif,scale=-2:480 -b:v 1500k -preset veryfast
                       -flags +loop-global_header %OUTPUT%'
+                - name: rkmpp
+                  cmd:
+                    '%RKMPPENC% --avhw --interlace tff --vpp-yadif mode=auto --output-res 1280x720
+                    -c h264 --preset worse  --vbr 3000
+                    --audio-codec aac --audio-bitrate 128 --audio-stream :stereo --audio-samplerate 48000  -i - -f mpegts -o - |
+                    %FFMPEG% -i pipe:0 -c:v copy -c:a copy -ignore_unknown -max_muxing_queue_size 1024 -f hls -hls_time 3
+                    -hls_list_size 17 -hls_allow_cache 1
+                    -hls_segment_filename %streamFileDir%/stream%streamNum%-%09d.ts -hls_flags delete_segments
+                    -flags +loop-global_header %OUTPUT%'
                 # - name: 720p (arib)
                 #   cmd:
                 #       '%FFMPEG% -re -dual_mono_mode main -fix_sub_duration -i pipe:0 -threads 0 -ignore_unknown
@@ -160,6 +183,14 @@ stream:
                       libx264 -vf yadif,scale=-2:480 -b:v 1500k -profile:v baseline -preset veryfast -tune
                       fastdecode,zerolatency -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4
                       pipe:1'
+                - name: rkmpp
+                  cmd:
+                      '%RKMPPENC% --avhw --interlace tff --vpp-yadif mode=auto --output-res -2x480 -i - --profile main
+                      --preset medium --audio-codec aac --audio-bitrate 128 --audio-samplerate 48000
+                      --audio-ignore-decode-error 30 --audio-stream 1?:stereo --audio-stream 2:stereo --data-copy timed_id3
+                      --output-format mpegts -o - |
+                      %FFMPEG% -i pipe:0 -c:v copy -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4
+                      pipe:1'
 
             hls:
                 - name: 720p
@@ -175,6 +206,16 @@ stream:
                       -max_muxing_queue_size 1024 -f hls -hls_time 3 -hls_list_size 0 -hls_allow_cache 1
                       -hls_segment_filename %streamFileDir%/stream%streamNum%-%09d.ts -hls_flags delete_segments -c:a
                       aac -ar 48000 -b:a 128k -ac 2 -c:v libx264 -vf yadif,scale=-2:480 -b:v 1500k -preset veryfast
+                      -flags +loop-global_header %OUTPUT%'
+                - name: rkmpp
+                  cmd:
+                      '%RKMPPENC% --avhw --interlace tff --vpp-yadif mode=auto --output-res -2x480 -i - --profile main
+                      --preset medium --audio-codec aac --audio-bitrate 128 --audio-samplerate 48000
+                      --audio-ignore-decode-error 30 --audio-stream 1?:stereo --audio-stream 2:stereo --data-copy timed_id3
+                      --output-format mpegts -o - |
+                      %FFMPEG% -i pipe:0 -c:v copy -c:a copy -ignore_unknown -max_muxing_queue_size 1024 -f hls -hls_time 3
+                      -hls_list_size 17 -hls_allow_cache 1
+                      -hls_segment_filename %streamFileDir%/stream%streamNum%-%09d.ts -hls_flags delete_segments
                       -flags +loop-global_header %OUTPUT%'
                 # - name: 720p (arib)
                 #   cmd:
@@ -211,6 +252,10 @@ stream:
                       2 -c:v libx264 -vf scale=-2:480 -b:v 1500k -profile:v baseline -preset veryfast -tune
                       fastdecode,zerolatency -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4
                       pipe:1'
+                - name: rkmpp
+                  cmd:
+                      '%FFMPEG% -dual_mono_mode main -ss %SS% -i  %INPUT% -sn -threads 0
+                       -c:v copy -c:a copy -movflags frag_keyframe+empty_moov+faststart+default_base_moof -y -f mp4 pipe:1'
 
             hls:
                 - name: 720p
@@ -227,3 +272,12 @@ stream:
                       -hls_segment_filename %streamFileDir%/stream%streamNum%-%09d.ts -hls_flags delete_segments -c:a
                       aac -ar 48000 -b:a 128k -ac 2 -c:v libx264 -vf scale=-2:480 -b:v 3000k -preset veryfast -flags
                       +loop-global_header %OUTPUT%'
+                - name: rkmpp
+                  cmd:
+                      '%FFMPEG% -dual_mono_mode main -ss %SS% -i %INPUT% -sn -threads 0 -ignore_unknown
+                      -max_muxing_queue_size 1024 -f hls -hls_time 3 -hls_list_size 0 -hls_allow_cache 1
+                      -hls_segment_filename %streamFileDir%/stream%streamNum%-%09d.ts -hls_flags delete_segments
+                      -c:a copy -c:v copy -flags  +loop-global_header %OUTPUT%'
+
+
+recordingFinishCommand: '/usr/bin/python  /opt/monitor/check_tsfile.py'
