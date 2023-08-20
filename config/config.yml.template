@@ -44,6 +44,10 @@ encode:
       cmd: '%NODE% %ROOT%/config/enc.js'
       suffix: .mp4
       rate: 4.0
+    - name: H.264(rkmpp)
+      cmd: '%NODE% %ROOT%/config/rk-encode.js'
+      suffix: .mp4
+      rate: 4.0
 
 urlscheme:
     m2ts:
